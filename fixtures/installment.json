@@ -1,0 +1,25 @@
+{
+  "id": "installment",
+  "text": "Магазин «Smartik» (вымышленный). Смартфон Smartik X: 300 000 ₸ при оплате сразу. Рассрочка 0% на 12 месяцев: 12 платежей по 29 000 ₸. Без переплат и скрытых комиссий!",
+  "extraction": {
+    "productType": "installment",
+    "lenderName": "Smartik",
+    "principal": 348000,
+    "cashPrice": 300000,
+    "termMonths": 12,
+    "nominalRateAnnual": 0,
+    "paymentType": "annuity",
+    "statedMonthlyPayment": 29000,
+    "redFlags": [
+      { "id": "unclear_terms", "quote": "Рассрочка 0% на 12 месяцев: 12 платежей по 29 000 ₸", "explanation": "Написано «0%», но 12 платежей по 29 000 ₸ дороже, чем цена при оплате сразу. Разницу в тексте не объясняют." }
+    ],
+    "missingInfo": ["штрафы за просрочку", "условия досрочного погашения"],
+    "fieldQuotes": {
+      "principal": "12 платежей по 29 000 ₸",
+      "cashPrice": "300 000 ₸ при оплате сразу",
+      "termMonths": "на 12 месяцев",
+      "nominalRateAnnual": "Рассрочка 0%",
+      "statedMonthlyPayment": "29 000 ₸"
+    }
+  }
+}

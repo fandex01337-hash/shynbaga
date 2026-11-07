@@ -1,0 +1,28 @@
+{
+  "id": "honest",
+  "text": "Банк «Алтын-Тест» (вымышленный). Потребительский кредит: 3 000 000 ₸, 36 месяцев, ставка 18% годовых, аннуитетный платёж 108 457 ₸ в месяц. ГЭСВ 19,6%. Комиссий за выдачу и обслуживание нет. Страхование не требуется. Досрочное погашение в любое время без комиссий. Пеня за просрочку — 0,05% от суммы просроченного платежа в день. Ставка фиксированная на весь срок.",
+  "extraction": {
+    "productType": "cash_loan",
+    "lenderName": "Банк «Алтын-Тест»",
+    "principal": 3000000,
+    "termMonths": 36,
+    "nominalRateAnnual": 18,
+    "statedEffectiveRate": 19.6,
+    "paymentType": "annuity",
+    "statedMonthlyPayment": 108457,
+    "penalties": [
+      { "description": "Пеня за просрочку", "percentPerDay": 0.05, "fixedAmount": null, "quote": "Пеня за просрочку — 0,05% от суммы просроченного платежа в день" }
+    ],
+    "earlyRepayment": { "allowed": true, "conditions": "в любое время без комиссий", "quote": "Досрочное погашение в любое время без комиссий" },
+    "redFlags": [],
+    "missingInfo": [],
+    "fieldQuotes": {
+      "principal": "3 000 000 ₸",
+      "termMonths": "36 месяцев",
+      "nominalRateAnnual": "ставка 18% годовых",
+      "statedEffectiveRate": "ГЭСВ 19,6%",
+      "paymentType": "аннуитетный платёж",
+      "statedMonthlyPayment": "108 457 ₸ в месяц"
+    }
+  }
+}
