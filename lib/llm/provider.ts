@@ -34,14 +34,17 @@ export class LLMError extends Error {
  */
 export function getProvider(): LLMProvider | null {
   const env = process.env;
+  // trim: при вставке ключа в панель хостинга или через CLI к значению легко дописывается перевод строки,
+  // а он ломает HTTP-заголовок с ключом
+  const clean = (v: string | undefined) => v?.trim() || undefined;
   const keys = {
-    anthropic: env.ANTHROPIC_API_KEY,
-    openai: env.OPENAI_API_KEY,
-    gemini: env.GEMINI_API_KEY || env.GOOGLE_API_KEY,
+    anthropic: clean(env.ANTHROPIC_API_KEY),
+    openai: clean(env.OPENAI_API_KEY),
+    gemini: clean(env.GEMINI_API_KEY) || clean(env.GOOGLE_API_KEY),
   };
-  const explicit = env.LLM_PROVIDER?.toLowerCase();
+  const explicit = clean(env.LLM_PROVIDER)?.toLowerCase();
   const which = explicit || (["anthropic", "openai", "gemini"] as const).find((p) => keys[p]) || "anthropic";
-  const model = env.LLM_MODEL;
+  const model = clean(env.LLM_MODEL);
   switch (which) {
     case "openai":
       return keys.openai ? new OpenAIProvider(keys.openai, model ?? "gpt-4o-mini") : null;

@@ -26,6 +26,16 @@ describe("getProvider", () => {
     vi.stubEnv("ANTHROPIC_API_KEY", "k");
     expect(getProvider()?.name).toBe("anthropic");
   });
+  it("ignores whitespace and newlines around env values (hosting panels add them)", () => {
+    clean();
+    vi.stubEnv("GEMINI_API_KEY", "  key-value\r\n");
+    vi.stubEnv("LLM_PROVIDER", " gemini\n");
+    vi.stubEnv("LLM_MODEL", "\ngemini-3.5-flash-lite\r\n");
+    expect(getProvider()?.name).toBe("gemini");
+    clean();
+    vi.stubEnv("GEMINI_API_KEY", " \r\n");
+    expect(getProvider()).toBeNull();
+  });
   it("explicit LLM_PROVIDER wins, and needs its own key", () => {
     clean();
     vi.stubEnv("ANTHROPIC_API_KEY", "k");
