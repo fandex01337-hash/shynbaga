@@ -8,3 +8,5 @@ coverage
 next-env.d.ts
 .vercel
 .claude
+.vercel
+.env*

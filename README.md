@@ -2,6 +2,10 @@
 
 «Шын баға» по-казахски — «настоящая цена». Рабочий слоган: «Кредит на человеческом языке».
 
+## 👉 [Открыть готовое приложение: shynbaga.vercel.app](https://shynbaga.vercel.app)
+
+Живая демо-версия работает без установки: ручной ввод, пять демо-пресетов и кнопка «Сгенерировать пример договора» (на демо-сайте она показывает готовый договор, без обращения к ИИ). Разбор своего текста, фото и PDF включается ключом `GEMINI_API_KEY` (см. ниже).
+
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Ffandex01337-hash%2Fshynbaga&project-name=shynbaga&env=GEMINI_API_KEY&envDescription=%D0%91%D0%B5%D1%81%D0%BF%D0%BB%D0%B0%D1%82%D0%BD%D1%8B%D0%B9%20%D0%BA%D0%BB%D1%8E%D1%87%20Gemini%3A%20aistudio.google.com%2Fapikey&envLink=https%3A%2F%2Faistudio.google.com%2Fapikey)
 
 **Открыть своё приложение за пару минут:** нажмите кнопку выше (Vercel сам склонирует репозиторий и спросит ключ `GEMINI_API_KEY`), либо запустите локально по инструкции ниже. Без ключа работают ручной ввод и все демо-пресеты (`DEMO_FALLBACK=true`).

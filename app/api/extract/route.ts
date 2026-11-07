@@ -15,12 +15,15 @@ const cache = (g.__extractCache ??= new LRUCache<ExtractionOutcome>(LIMITS.cache
 
 type ErrorCode = "rate_limited" | "bad_request" | "too_large" | "pdf_too_long" | "pdf_unreadable" | "llm_unavailable" | "invalid_output" | "server_error";
 
+/** trim: панели хостингов и CLI легко дописывают к значению перевод строки */
+const demoFallbackOn = () => process.env.DEMO_FALLBACK?.trim().toLowerCase() === "true";
+
 const fail = (code: ErrorCode, status: number, extra: Record<string, unknown> = {}) =>
   NextResponse.json({ ok: false, code, ...extra }, { status });
 
 /** Возможности сервера для UI: есть ли LLM. */
 export async function GET() {
-  return NextResponse.json({ llm: getProvider() !== null, demoFallback: process.env.DEMO_FALLBACK === "true" });
+  return NextResponse.json({ llm: getProvider() !== null, demoFallback: demoFallbackOn() });
 }
 
 async function pdfToText(base64: string): Promise<string> {
@@ -86,7 +89,7 @@ async function handle(req: Request) {
   }
 
   const provider = getProvider();
-  const fallbackAllowed = process.env.DEMO_FALLBACK === "true";
+  const fallbackAllowed = demoFallbackOn();
   const preset = getPreset(input.presetId);
   const useFixture = (): NextResponse | null =>
     fallbackAllowed && preset
