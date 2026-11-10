@@ -1,6 +1,6 @@
 "use client";
 
-import { Camera, FileText, Loader2, PencilLine, Sparkles, Upload } from "lucide-react";
+import { Camera, FileText, FileUp, Handshake, Loader2, PencilLine, Sparkles, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 import { LIMITS } from "@/lib/config/thresholds";
 import { useI18n } from "@/lib/i18n/context";
@@ -12,6 +12,9 @@ export interface InputHandlers {
   onText: (text: string, presetId?: string) => void;
   onImage: (file: File) => void;
   onPdf: (file: File) => void;
+  /** Возвращает текст из Word или null при ошибке */
+  onDocx: (file: File) => Promise<string | null>;
+  onInstallment: () => void;
   onManual: () => void;
   onGenerate: () => void;
 }
@@ -33,6 +36,7 @@ export function InputPanel({
   const [text, setText] = useState("");
   const cameraRef = useRef<HTMLInputElement>(null);
   const pdfRef = useRef<HTMLInputElement>(null);
+  const docxRef = useRef<HTMLInputElement>(null);
   const tooLong = text.length > LIMITS.maxTextChars;
 
   const pickPreset = (id: string) => {
@@ -80,6 +84,34 @@ export function InputPanel({
           if (f) handlers.onPdf(f);
         }}
       />
+
+      <input
+        ref={docxRef}
+        type="file"
+        accept=".docx,.doc,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        hidden
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          e.target.value = "";
+          if (!f) return;
+          void handlers.onDocx(f).then((doc) => {
+            if (!doc) return;
+            // Текст всегда виден в поле; разбор — только если ИИ доступен
+            setText(doc);
+            setMode("text");
+            if (llm !== false) handlers.onText(doc);
+          });
+        }}
+      />
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <Button variant="secondary" onClick={() => docxRef.current?.click()} disabled={busy}>
+          <FileUp aria-hidden size={20} /> {t("input.docx")}
+        </Button>
+        <Button variant="secondary" onClick={handlers.onInstallment} disabled={busy}>
+          <Handshake aria-hidden size={20} /> {t("input.installment")}
+        </Button>
+      </div>
 
       <button
         type="button"

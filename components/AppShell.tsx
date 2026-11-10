@@ -9,7 +9,10 @@ import type { LoanParams } from "@/lib/finance/types";
 import { evaluateEngineFlags } from "@/lib/flags/rules";
 import { mergeFlags } from "@/lib/flags/taxonomy";
 import { emptyParams, extractionToMeta, extractionToParams, manualMeta, type ExtractionMeta } from "@/lib/form";
-import { prepareImage, preparePdf } from "@/lib/clientFiles";
+import { prepareImage, preparePdf, readDocx } from "@/lib/clientFiles";
+import { LIMITS } from "@/lib/config/thresholds";
+import { InstallmentBuilder } from "./InstallmentBuilder";
+import { installmentToParams } from "@/lib/installment";
 import { useI18n } from "@/lib/i18n/context";
 import { buildShareText } from "@/lib/share";
 import { toTiyn } from "@/lib/finance/money";
@@ -50,6 +53,7 @@ export function AppShell() {
   const [copied, setCopied] = useState(false);
   const [sample, setSample] = useState<{ text: string; via: "llm" | "fixture" } | null>(null);
   const [generating, setGenerating] = useState(false);
+  const [installmentOpen, setInstallmentOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/extract")
@@ -150,6 +154,19 @@ export function AppShell() {
         setError(t("err.pdf_too_large"));
       }
     },
+    onDocx: async (file) => {
+      setError(null);
+      try {
+        return (await readDocx(file)).slice(0, LIMITS.maxTextChars);
+      } catch (e) {
+        setError(t(e instanceof Error && e.message === "old_doc" ? "err.old_doc" : "err.docx"));
+        return null;
+      }
+    },
+    onInstallment: () => {
+      setError(null);
+      setInstallmentOpen(true);
+    },
     onManual: () => {
       setParams(emptyParams());
       setMeta(manualMeta());
@@ -226,8 +243,9 @@ export function AppShell() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 pb-16">
-      <header className="flex items-center justify-between py-4">
-        <span className="text-xl font-extrabold">
+      <header className="flex items-center justify-between pb-2 pt-5">
+        <span className="flex items-center gap-2 text-xl font-extrabold text-blue-900">
+          <span aria-hidden className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-[#e0b54d] to-[#c9962b] text-lg text-white shadow">☀</span>
           {t("app.name")} <span className="hidden text-sm font-medium text-slate-600 sm:inline">· {t("app.tagline")}</span>
         </span>
         <div className="flex gap-1" role="group" aria-label="Language">
@@ -244,12 +262,13 @@ export function AppShell() {
           ))}
         </div>
       </header>
+      <div aria-hidden className="ornament-band mb-4" />
 
       <main className="space-y-4">
         {stage === "input" && (
           <>
             <div className="py-4">
-              <h1 className="text-3xl font-extrabold leading-tight sm:text-4xl">{t("hero.title")}</h1>
+              <h1 className="bg-gradient-to-r from-blue-900 via-blue-700 to-[#b07f1c] bg-clip-text text-3xl font-extrabold leading-tight text-transparent sm:text-4xl">{t("hero.title")}</h1>
               <p className="mt-2 text-lg text-slate-700">{t("hero.sub")}</p>
             </div>
             {busy ? (
@@ -268,6 +287,17 @@ export function AppShell() {
                     // Если ИИ недоступен, разбор тоже идёт по готовой фикстуре договора
                     onAnalyze={() => void runExtract({ text: sample.text, presetId: sample.via === "fixture" ? "contract" : undefined })}
                     onRegenerate={() => void generateSample()}
+                  />
+                )}
+                {installmentOpen && (
+                  <InstallmentBuilder
+                    onClose={() => setInstallmentOpen(false)}
+                    onAnalyze={(v) => {
+                      setMeta({ ...manualMeta(), earlyRepayment: { allowed: v.earlyAllowed, conditions: null, quote: null } });
+                      setSummary(null);
+                      setFormKey((k) => k + 1);
+                      submitForm(installmentToParams(v));
+                    }}
                   />
                 )}
                 <InputPanel handlers={handlers} busy={busy} generating={generating} llm={llm} />

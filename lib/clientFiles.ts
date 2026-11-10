@@ -28,6 +28,19 @@ export async function prepareImage(file: File): Promise<{ mime: "image/jpeg"; ba
   return { mime: "image/jpeg", base64: stripPrefix(await readAsDataUrl(blob)) };
 }
 
+/** Достаёт текст из Word (.docx) прямо в браузере — файл никуда не отправляется целиком. */
+export async function readDocx(file: File): Promise<string> {
+  const name = file.name.toLowerCase();
+  if (name.endsWith(".doc")) throw new Error("old_doc");
+  if (!name.endsWith(".docx")) throw new Error("not_docx");
+  if (file.size > LIMITS.maxPdfBytes) throw new Error("docx_too_large");
+  const mammoth = await import("mammoth/mammoth.browser");
+  const { value } = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+  const text = value.replace(/\n{3,}/g, "\n\n").trim();
+  if (text.length < 30) throw new Error("docx_empty");
+  return text;
+}
+
 export async function preparePdf(file: File): Promise<{ base64: string }> {
   if (file.type !== "application/pdf") throw new Error("not_pdf");
   if (file.size > LIMITS.maxPdfBytes) throw new Error("pdf_too_large");
